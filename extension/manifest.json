@@ -1,0 +1,29 @@
+{
+  "manifest_version": 3,
+  "name": "Wordle MCP Helper",
+  "version": "0.1.0",
+  "description": "Shows Wordle suggestions from your local MCP solver (http://127.0.0.1:8787).",
+  "icons": {
+    "16": "wordomIcon.png",
+    "48": "wordomIcon.png",
+    "128": "wordomIcon.png"
+  },
+  "host_permissions": [
+    "http://127.0.0.1:8787/*"
+  ],
+  "permissions": [],
+  "content_scripts": [
+    {
+      "matches": [
+        "https://*.nytimes.com/games/wordle/*",
+        "https://wordleunlimited.org/*",
+        "https://www.wordleunlimited.org/*"
+      ],
+      "js": ["content.js"],
+      "css": ["style.css"],
+      "run_at": "document_idle"
+    }
+  ]
+}
+
+
