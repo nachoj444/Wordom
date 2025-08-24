@@ -11,7 +11,18 @@
   "host_permissions": [
     "http://127.0.0.1:8787/*"
   ],
-  "permissions": [],
+  "content_security_policy": {
+    "extension_pages": "script-src 'self'; object-src 'self'"
+  },
+  "web_accessible_resources": [
+    {
+      "resources": ["wordomIcon.png"],
+      "matches": ["<all_urls>"]
+    }
+  ],
+  "permissions": [
+    "activeTab"
+  ],
   "content_scripts": [
     {
       "matches": [

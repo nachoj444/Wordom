@@ -75,7 +75,7 @@
       left: 0;
       right: 0;
       height: 48px;
-      background: #1f6feb;
+      background: #3F6C91;
       border-radius: 12px 12px 0 0;
       cursor: move;
       display: flex;
@@ -91,26 +91,161 @@
     const titleContainer = document.createElement('div');
     titleContainer.style.cssText = 'display: flex; align-items: center; gap: 8px;';
     
-    // Add the icon - use your custom PNG
-    const icon = document.createElement('img');
-    icon.src = chrome.runtime.getURL('wordomIcon.png');
-    icon.style.cssText = 'width: 20px; height: 20px; object-fit: contain;';
-    icon.alt = 'Wordom Icon';
+      // Add the icon - use your custom PNG
+  const icon = document.createElement('img');
+  icon.src = chrome.runtime.getURL('wordomIcon.png');
+  icon.style.cssText = 'width: 20px; height: 20px; object-fit: contain;';
+  icon.alt = 'Wordom Icon';
+  
+  // Add error handling to debug icon loading
+  icon.onerror = () => {
+    // Remove the broken image
+    icon.remove();
+  };
+  
+  titleContainer.appendChild(icon);
+  
+  // Add ad-blocking CSS to hide external Wordle ads
+  const adBlockingCSS = document.createElement('style');
+  adBlockingCSS.textContent = `
+    /* Hide Wordle promotional ads */
+    [data-testid="promo-banner"],
+    [data-testid="promo"],
+    .promo-banner,
+    .promo,
+    .advertisement,
+    .ad,
+    [class*="promo"],
+    [class*="ad"],
+    [id*="promo"],
+    [id*="ad"] {
+      display: none !important;
+      visibility: hidden !important;
+      opacity: 0 !important;
+      height: 0 !important;
+      width: 0 !important;
+      position: absolute !important;
+      left: -9999px !important;
+      top: -9999px !important;
+    }
     
-    // Add error handling to debug icon loading
-    icon.onerror = () => {
-      console.log('[DEBUG] Failed to load wordomIcon.png, path was:', icon.src);
-      // Remove the broken image
-      icon.remove();
-    };
+    /* Hide specific Wordle home goods promotion */
+    div:has-text("Wordle-themed home goods"),
+    div:has-text("pillows, blankets, towels"),
+    div:has-text("home goods"),
+    div:has-text("pillows"),
+    div:has-text("blankets"),
+    div:has-text("towels"),
+    [class*="home-goods"],
+    [class*="merchandise"],
+    [class*="goods"] {
+      display: none !important;
+      visibility: hidden !important;
+      opacity: 0 !important;
+      height: 0 !important;
+      width: 0 !important;
+      position: absolute !important;
+      left: -9999px !important;
+      top: -9999px !important;
+    }
     
-    icon.onload = () => {
-      console.log('[DEBUG] Successfully loaded wordomIcon.png from:', icon.src);
-    };
+    /* Hide any promotional bars at the bottom */
+    div[style*="position: fixed"][style*="bottom"],
+    div[style*="position: fixed"][style*="bottom: 0"],
+    .bottom-promo,
+    .bottom-ad {
+      display: none !important;
+      visibility: hidden !important;
+    }
     
-    titleContainer.appendChild(icon);
-    
-    // Add the title text
+    /* Hide SEPHORA and other major brand ads */
+    div:has-text("SEPHORA"),
+    div:has-text("SHOP NOW"),
+    div:has-text("Buy Online, Pick Up In Store"),
+    div:has-text("Rare Beauty"),
+    div:has-text("Selena Gomez"),
+    div:has-text("NEW & ONLY AT SEPHORA"),
+    div:has-text("Get it today when you buy online"),
+    [class*="sephora"],
+    [class*="brand"],
+    [class*="shopping"],
+    [class*="store"],
+    [class*="rare"],
+    [class*="beauty"] {
+      display: none !important;
+      visibility: hidden !important;
+      opacity: 0 !important;
+      height: 0 !important;
+      width: 0 !important;
+      position: absolute !important;
+      left: -9999px !important;
+      top: -9999px !important;
+    }
+  `;
+    document.head.appendChild(adBlockingCSS);
+  
+  // Add aggressive ad-blocking with MutationObserver
+  const adBlocker = new MutationObserver((mutations) => {
+    mutations.forEach((mutation) => {
+      mutation.addedNodes.forEach((node) => {
+        if (node.nodeType === Node.ELEMENT_NODE) {
+          const element = node;
+          
+          // Check if this is an ad or promotional content
+          const isAd = 
+            element.textContent?.includes('Wordle-themed home goods') ||
+            element.textContent?.includes('pillows, blankets, towels') ||
+            element.textContent?.includes('home goods') ||
+            element.textContent?.includes('pillows') ||
+            element.textContent?.includes('blankets') ||
+            element.textContent?.includes('towels') ||
+            element.textContent?.includes('merchandise') ||
+            element.textContent?.includes('shop') ||
+            element.textContent?.includes('buy') ||
+            element.textContent?.includes('promo') ||
+            element.textContent?.includes('advertisement') ||
+            element.textContent?.includes('SEPHORA') ||
+            element.textContent?.includes('SHOP NOW') ||
+            element.textContent?.includes('Buy Online, Pick Up In Store') ||
+            element.textContent?.includes('Rare Beauty') ||
+            element.textContent?.includes('Selena Gomez') ||
+            element.textContent?.includes('NEW & ONLY AT SEPHORA') ||
+            element.textContent?.includes('Get it today when you buy online') ||
+            element.className?.includes('promo') ||
+            element.className?.includes('ad') ||
+            element.className?.includes('goods') ||
+            element.className?.includes('sephora') ||
+            element.className?.includes('brand') ||
+            element.className?.includes('shopping') ||
+            element.className?.includes('rare') ||
+            element.className?.includes('beauty') ||
+            element.id?.includes('promo') ||
+            element.id?.includes('ad') ||
+            element.getAttribute('data-testid')?.includes('promo') ||
+            element.getAttribute('data-testid')?.includes('ad');
+          
+          if (isAd) {
+            element.style.display = 'none';
+            element.style.visibility = 'hidden';
+            element.style.opacity = '0';
+            element.style.height = '0';
+            element.style.width = '0';
+            element.style.position = 'absolute';
+            element.style.left = '-9999px';
+            element.style.top = '-9999px';
+          }
+        }
+      });
+    });
+  });
+  
+  // Start observing for new ads
+  adBlocker.observe(document.body, {
+    childList: true,
+    subtree: true
+  });
+  
+  // Add the title text
     const titleText = document.createElement('span');
     titleText.textContent = 'Wordom';
     titleContainer.appendChild(titleText);
@@ -179,10 +314,10 @@
     // header.style.marginTop = '65px';
     // header.style.padding = '0 24px';
     // On-board guesses section
-    const historyTitle = h('div', { id: 'wordle-history-title', style: { marginTop: '16px', marginBottom: '12px', fontSize: '13px', color: '#1f6feb', fontWeight: '600', display: 'none', paddingTop: '8px', textTransform: 'uppercase', letterSpacing: '1px' } }, 'Past Guesses');
+    const historyTitle = h('div', { id: 'wordle-history-title', style: { marginTop: '16px', marginBottom: '12px', fontSize: '13px', color: '#3F6C91', fontWeight: '600', display: 'none', paddingTop: '8px', textTransform: 'uppercase', letterSpacing: '1px' } }, 'Past Guesses');
     const history = h('div', { id: 'wordle-history-list', style: { display: 'grid', gap: '8px', marginBottom: '8px' } });
     const list = h('div', { style: { display: 'grid', gap: '8px' } });
-    const suggestTitle = h('div', { id: 'wordle-suggest-title', style: { marginTop: '16px', marginBottom: '12px', fontSize: '13px', color: '#1f6feb', fontWeight: '600', paddingTop: '8px', textTransform: 'uppercase', letterSpacing: '1px' } }, 'Suggestions');
+    const suggestTitle = h('div', { id: 'wordle-suggest-title', style: { marginTop: '16px', marginBottom: '12px', fontSize: '13px', color: '#3F6C91', fontWeight: '600', paddingTop: '8px', textTransform: 'uppercase', letterSpacing: '1px' } }, 'Suggestions');
     const defWrap = h('div', { id: 'wordle-def-wrap', style: { marginTop: '6px', display: 'none', flex: '1', minHeight: '0', overflow: 'hidden' } });
     const contentBox = h('div', { id: 'wordle-content-box', style: { fontSize: '13px', lineHeight: '1.6', height: 'auto', minHeight: '0', overflowY: 'visible', paddingTop: '8px', paddingRight: '20px', flex: '1' } });
     defWrap.appendChild(contentBox);
@@ -208,7 +343,7 @@
       transform: translate(-50%, -50%);
       width: 24px;
       height: 3px;
-      background: #1f6feb;
+              background: #3F6C91;
       border-radius: 2px;
     `;
     divider.appendChild(dividerHandle);
@@ -216,12 +351,12 @@
     // Add hover effect
     divider.addEventListener('mouseenter', () => {
       divider.style.background = '#30363d';
-      dividerHandle.style.background = '#58a6ff';
+      dividerHandle.style.background = '#3F6C91';
     });
     
     divider.addEventListener('mouseleave', () => {
       divider.style.background = '#21262d';
-      dividerHandle.style.background = '#1f6feb';
+      dividerHandle.style.background = '#3F6C91';
     });
     
     // Add drag functionality for the divider
@@ -292,24 +427,17 @@
     return { panel, list, history, historyTitle };
   }
   async function fetchDefinition(word) {
-    console.log('[DEBUG] fetchDefinition called with word:', word);
     try {
-      console.log('[DEBUG] Making request to:', `http://127.0.0.1:8787/define?word=${word}`);
-      
-            const response = await fetch(`http://127.0.0.1:8787/define?word=${word}`);
-      console.log('[DEBUG] Response status:', response.status);
+      const response = await fetch(`http://127.0.0.1:8787/define?word=${word}`);
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
       const data = await response.json();
-      console.log('[DEBUG] Response data:', data);
       
       if (data.definitions && data.definitions.length > 0) {
-        console.log('[DEBUG] Found definitions:', data.definitions.length);
         const wrap = document.getElementById('wordle-def-wrap');
         if (wrap) wrap.style.display = 'block';
         
         const box = document.getElementById('wordle-content-box');
         if (!box) {
-          console.error('[DEBUG] Could not find wordle-content-box');
           return;
         }
         
@@ -320,7 +448,7 @@
         
         // Add Definition section header
         const defHeader = document.createElement('div');
-        defHeader.style.cssText = 'font-weight: 700; margin-bottom: 16px; color: #1f6feb; border-bottom: 1px solid #30363d; padding-bottom: 8px; font-size: 16px; text-transform: uppercase; letter-spacing: 0.5px;';
+        defHeader.style.cssText = 'font-weight: 700; margin-bottom: 16px; color: #3F6C91; border-bottom: 1px solid #30363d; padding-bottom: 8px; font-size: 16px; text-transform: uppercase; letter-spacing: 0.5px;';
         defHeader.textContent = word.toUpperCase();
         box.appendChild(defHeader);
         
@@ -334,7 +462,7 @@
           
           // Add Definition subtitle
           const defSubtitle = document.createElement('div');
-          defSubtitle.style.cssText = 'font-weight: 600; margin-bottom: 8px; color: #1f6feb; font-size: 14px;';
+                      defSubtitle.style.cssText = 'font-weight: 600; margin-bottom: 8px; color: #3F6C91; font-size: 14px;';
           defSubtitle.textContent = `Definition ${index + 1}:`;
           li.appendChild(defSubtitle);
           
@@ -386,7 +514,7 @@
             if (def.audio) {
               const playButton = document.createElement('button');
               playButton.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" style="width: 16px; height: 16px; fill: #ffffff;"><g data-name="high audio"><path d="M11.46 3c-1 0-1 .13-6.76 4H1a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h3.7l5.36 3.57A2.54 2.54 0 0 0 14 18.46V5.54A2.54 2.54 0 0 0 11.46 3zM2 9h2v6H2zm10 9.46a.55.55 0 0 1-.83.45L6 15.46V8.54l5.17-3.45a.55.55 0 0 1 .83.45zM16.83 9.17a1 1 0 0 0-1.42 1.42 2 2 0 0 1 0 2.82 1 1 0 0 0 .71 1.71c1.38 0 3.04-3.62.71-5.95z"/><path d="M19 7.05a1 1 0 0 0-1.41 1.41 5 5 0 0 1 0 7.08 1 1 0 0 0 .7 1.7c1.61 0 4.8-6.05.71-10.19z"/><path d="M21.07 4.93a1 1 0 0 0-1.41 1.41 8 8 0 0 1 0 11.32 1 1 0 0 0 1.41 1.41 10 10 0 0 0 0-14.14z"/></g></svg>';
-              playButton.style.cssText = 'background: #1f6feb; border: none; border-radius: 50%; width: 20px; height: 20px; cursor: pointer; font-size: 10px; color: white; display: flex; align-items: center; justify-content: center;';
+                              playButton.style.cssText = 'background: #3F6C91; border: none; border-radius: 50%; width: 20px; height: 20px; cursor: pointer; font-size: 10px; color: white; display: flex; align-items: center; justify-content: center;';
               playButton.onclick = () => playPronunciation(def.audio, def.pronunciation || '');
               pronunciationDiv.appendChild(playButton);
             }
@@ -442,13 +570,13 @@
           // Sentence button for this definition
           const sentenceBtn = document.createElement('button');
           sentenceBtn.textContent = 'Sentence';
-          sentenceBtn.style.cssText = 'background: #1f6feb; color: #fff; border: none; border-radius: 6px; padding: 6px 12px; font-size: 12px; cursor: pointer; font-weight: 500; transition: all 0.2s ease;';
+                      sentenceBtn.style.cssText = 'background: #3F6C91; color: #fff; border: none; border-radius: 6px; padding: 6px 12px; font-size: 12px; cursor: pointer; font-weight: 500; transition: all 0.2s ease;';
           sentenceBtn.onclick = () => fetchSentenceForDefinition(word, index);
           
           // Translate button for this definition
           const translateBtn = document.createElement('button');
           translateBtn.textContent = 'Translate';
-          translateBtn.style.cssText = 'background: #1f6feb; color: #fff; border: none; border-radius: 6px; padding: 6px 12px; font-size: 12px; cursor: pointer; font-weight: 500; transition: all 0.2s ease;';
+                      translateBtn.style.cssText = 'background: #3F6C91; color: #fff; border: none; border-radius: 6px; padding: 6px 12px; font-size: 12px; cursor: pointer; font-weight: 500; transition: all 0.2s ease;';
           translateBtn.onclick = () => showTranslateDropdownForDefinition(word, index);
           
           // Add hover effects to sentence button
@@ -456,7 +584,7 @@
             e.target.style.background = '#58a6ff';
           });
           sentenceBtn.addEventListener('mouseleave', (e) => {
-            e.target.style.background = '#1f6feb';
+            e.target.style.background = '#3F6C91';
           });
           
           // Add hover effects to translate button
@@ -464,7 +592,7 @@
             e.target.style.background = '#58a6ff';
           });
           translateBtn.addEventListener('mouseleave', (e) => {
-            e.target.style.background = '#1f6feb';
+            e.target.style.background = '#3F6C91';
           });
           
           defButtons.appendChild(sentenceBtn);
@@ -478,9 +606,9 @@
             console.warn(`Could not find list item at index ${index}`);
           }
         });
-        console.log('[DEBUG] Definition display completed successfully');
+        // Definition display completed successfully
       } else {
-        console.log('No definition found for:', word);
+        // No definition found for word
       }
     } catch (error) {
       console.error('Couldn\'t fetch definition:', error);
@@ -488,7 +616,7 @@
   }
 
   async function fetchSentence(word) {
-    console.log('[DEBUG] fetchSentence called with word:', word);
+            // Fetching sentences for word
     let box;
     try {
       const wrap = document.getElementById('wordle-def-wrap');
@@ -496,11 +624,10 @@
       
       box = document.getElementById('wordle-content-box');
       if (!box) {
-        console.error('[DEBUG] Could not find wordle-content-box');
         return;
       }
       
-      console.log('[DEBUG] Making request to:', `http://127.0.0.1:8787/sentence?word=${word}`);
+      const response = await fetch(`http://127.0.0.1:8787/sentence?word=${word}`);
       
       // Show loading message in the fixed bottom section
       const bottomSection = document.getElementById('wordle-bottom-section');
@@ -510,33 +637,39 @@
       if (bottomSection) {
         const loadingMsg = document.createElement('div');
         loadingMsg.id = 'sentence-loading';
-        loadingMsg.style.cssText = 'margin-top: 12px; font-style: italic; color: #666; text-align: center;';
-        loadingMsg.textContent = 'Looking up sentences...';
+        loadingMsg.style.cssText = 'margin-top: 12px; margin-bottom: 8px; font-style: italic; color: #ffffff; text-align: center; font-weight: 600; font-size: 16px;';
+        loadingMsg.textContent = '🔍 Looking up sentences...';
         bottomSection.appendChild(loadingMsg);
         
-        // Add loading bar
+        // Add simple blue loading bar
         const loadingBar = document.createElement('div');
         loadingBar.id = 'sentence-loading-bar';
-        loadingBar.style.cssText = 'width: 100%; height: 2px; background: #333; margin-top: 4px; overflow: hidden;';
+        loadingBar.style.cssText = 'width: 100%; height: 16px; background: #e0e0e0; margin: 12px 0; border-radius: 8px; overflow: hidden; border: 2px solid #3F6C91;';
         loadingFill = document.createElement('div');
-        loadingFill.style.cssText = 'height: 100%; background: #4CAF50; width: 0%; transition: width 0.3s ease;';
+        loadingFill.style.cssText = 'height: 100%; background: #3F6C91; width: 0%; transition: width 0.2s ease; border-radius: 6px;';
         loadingBar.appendChild(loadingFill);
         bottomSection.appendChild(loadingBar);
         
-        // Animate loading bar
+        // Simple loading animation with minimum display time
         let progress = 0;
         loadingInterval = setInterval(() => {
-          progress += Math.random() * 15;
-          if (progress > 90) progress = 90;
-          if (loadingFill) loadingFill.style.width = progress + '%';
-        }, 100);
+          progress += 3;
+          if (progress > 95) progress = 95;
+          if (loadingFill) {
+            loadingFill.style.width = progress + '%';
+          }
+        }, 40);
+        
+        // Force minimum display time of 800ms
+        setTimeout(() => {
+          if (loadingFill) {
+            loadingFill.style.width = '100%';
+          }
+        }, 800);
       }
       
-      const response = await fetch(`http://127.0.0.1:8787/sentence?word=${word}`);
-      console.log('[DEBUG] Response status:', response.status);
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
       const data = await response.json();
-      console.log('[DEBUG] Response data:', data);
       
       // Clean up loading interval and complete animation
       if (loadingInterval) {
@@ -561,10 +694,8 @@
         }
       
       if (data.sentences && data.sentences.length > 0) {
-        console.log('[DEBUG] Found sentences:', data.sentences.length);
         // Get the definitions from the sentence response (they should match 1:1)
         const definitions = data.definitions || window.currentWordDefinitions || [];
-        console.log('[DEBUG] Using definitions:', definitions);
         
         // Populate each sentence placeholder below its corresponding definition
         data.sentences.forEach((sentence, index) => {
@@ -587,14 +718,14 @@
                 else if (def.includes('adverb')) defType = 'Adverb';
               }
               
-              sentencePlaceholder.innerHTML = `<div style="color: #1f6feb; font-weight: 600; margin-bottom: 4px;">Sentence Example:</div><strong style="color: #ffffff;">${defType}:</strong> ${sentence}`;
+              sentencePlaceholder.innerHTML = `<div style="color: #3F6C91; font-weight: 600; margin-bottom: 4px;">Sentence Example:</div><strong style="color: #ffffff;">${defType}:</strong> ${sentence}`;
             } else {
               sentencePlaceholder.textContent = sentence;
             }
           }
         });
         
-        console.log('[DEBUG] Sentence display completed successfully');
+        // Sentence display completed successfully
       } else {
         // Show error message in the first sentence placeholder
         const firstPlaceholder = document.getElementById('sentence-0');
@@ -705,24 +836,37 @@
         const definitions = window.currentWordDefinitions || [];
         const definitionsParam = encodeURIComponent(JSON.stringify(definitions));
         
+        // Add loading message for translation
+        const loadingMsg = document.createElement('div');
+        loadingMsg.id = 'translation-loading-msg';
+        loadingMsg.style.cssText = 'margin-top: 12px; margin-bottom: 8px; color: #ffffff; font-style: italic; text-align: center; font-weight: 600; font-size: 16px;';
+        loadingMsg.textContent = '🌐 Translating...';
+        bottomSection.appendChild(loadingMsg);
+        
         // Add loading bar for translation in the fixed bottom section
-        const bottomSection = document.getElementById('wordle-bottom-section');
         if (bottomSection) {
           const loadingBar = document.createElement('div');
           loadingBar.id = 'translation-loading-bar';
-          loadingBar.style.cssText = 'width: 100%; height: 2px; background: #333; margin-top: 4px; overflow: hidden;';
+          loadingBar.style.cssText = 'width: 100%; height: 16px; background: #e0e0e0; margin: 12px 0; border-radius: 8px; overflow: hidden; border: 2px solid #3F6C91;';
           const loadingFill = document.createElement('div');
-          loadingFill.style.cssText = 'height: 100%; background: #4CAF50; width: 0%; transition: width 0.3s ease;';
+          loadingFill.style.cssText = 'height: 100%; background: #3F6C91; width: 0%; transition: width 0.2s ease; border-radius: 6px;';
           loadingBar.appendChild(loadingFill);
           bottomSection.appendChild(loadingBar);
           
-          // Animate loading bar
+          // Simple loading animation with minimum display time
           let progress = 0;
           const loadingInterval = setInterval(() => {
-            progress += Math.random() * 15;
-            if (progress > 90) progress = 90;
+            progress += 3;
+            if (progress > 95) progress = 95;
             loadingFill.style.width = progress + '%';
-          }, 100);
+          }, 40);
+          
+          // Force minimum display time of 800ms
+          setTimeout(() => {
+            if (loadingFill) {
+              loadingFill.style.width = '100%';
+            }
+          }, 800);
           
           // Store interval reference for cleanup
           window.translationLoadingInterval = loadingInterval;
@@ -760,7 +904,7 @@
               // Add translation subtitle - get language name from the selected language
               const selectedLanguage = languages.find(l => l.code === langCode);
               const languageName = selectedLanguage ? selectedLanguage.name : 'Unknown';
-              content += `<div style="color: #1f6feb; font-weight: 600; margin-bottom: 4px;">Translation to ${languageName}:</div>`;
+              content += `<div style="color: #3F6C91; font-weight: 600; margin-bottom: 4px;">Translation to ${languageName}:</div>`;
               
               // Show part of speech and definition context
               if (trans.partOfSpeech) {
@@ -780,10 +924,6 @@
                 content += `<br><span style="opacity: 0.9;">${trans.definitionInTargetLang}</span>`;
               }
               
-              // Show source (AI vs API)
-              const sourceText = trans.source === 'ai' ? 'AI (Ollama)' : trans.source === 'api' ? 'API' : 'Fallback';
-              content += `<br><small style="opacity: 0.6;">Source: ${sourceText}</small>`;
-              
               translationPlaceholder.innerHTML = content;
             }
           });
@@ -799,6 +939,9 @@
           if (bottomSection) {
             const translationLoadingBar = bottomSection.querySelector('#translation-loading-bar');
             if (translationLoadingBar) translationLoadingBar.remove();
+            
+            const translationLoadingMsg = bottomSection.querySelector('#translation-loading-msg');
+            if (translationLoadingMsg) translationLoadingMsg.remove();
           }
         } else {
           // Show error message in the first translation placeholder
@@ -852,37 +995,140 @@
   
   // Function to fetch sentence for a specific definition
   async function fetchSentenceForDefinition(word, definitionIndex) {
-    console.log(`[DEBUG] fetchSentenceForDefinition called with word: ${word}, definition: ${definitionIndex}`);
+            // Fetching sentence for definition
     
     try {
       // Show loading indicator for this specific definition
       const sentencePlaceholder = document.getElementById(`sentence-${definitionIndex}`);
       if (sentencePlaceholder) {
         sentencePlaceholder.style.cssText = 'margin-left: 20px; margin-bottom: 12px; color: #ffffff; font-style: italic; display: block;';
-        sentencePlaceholder.textContent = 'Looking for a sentence with our word...';
         
-        // Add loading bar
+        // Clear the placeholder and add loading elements
+        sentencePlaceholder.innerHTML = '';
+        
+        // Add loading message
+        const loadingMsg = document.createElement('div');
+        loadingMsg.id = `sentence-loading-msg-${definitionIndex}`;
+        loadingMsg.style.cssText = 'margin-bottom: 8px; color: #ffffff; font-style: italic; font-size: 14px; font-weight: 500; opacity: 1; text-align: center;';
+        loadingMsg.textContent = '🔍 Looking for a sentence with our word...';
+        sentencePlaceholder.appendChild(loadingMsg);
+        
+        // Add simple blue loading bar with forced visibility
         const loadingBar = document.createElement('div');
         loadingBar.id = `sentence-loading-bar-${definitionIndex}`;
-        loadingBar.style.cssText = 'width: 100%; height: 2px; background: #333; margin-top: 4px; overflow: hidden;';
+        
+        // Set styles individually to avoid conflicts
+        loadingBar.style.setProperty('width', '100%', 'important');
+        loadingBar.style.setProperty('height', '4px', 'important'); // 30% thinner (was 6px, now 4px)
+        loadingBar.style.setProperty('background', '#e0e0e0', 'important');
+        loadingBar.style.setProperty('margin', '8px 0', 'important');
+        loadingBar.style.setProperty('border-radius', '2px', 'important');
+        loadingBar.style.setProperty('overflow', 'hidden', 'important');
+        loadingBar.style.setProperty('border', '1px solid #3F6C91', 'important'); // Thinner border
+        loadingBar.style.setProperty('display', 'block', 'important');
+        loadingBar.style.setProperty('visibility', 'visible', 'important');
+        loadingBar.style.setProperty('opacity', '1', 'important');
+        loadingBar.style.setProperty('z-index', '9999', 'important');
+        loadingBar.style.setProperty('position', 'relative', 'important');
+        loadingBar.style.setProperty('left', '0', 'important');
+        loadingBar.style.setProperty('top', '0', 'important');
+        
         const loadingFill = document.createElement('div');
-        loadingFill.style.cssText = 'height: 100%; background: #4CAF50; width: 0%; transition: width 0.3s ease;';
+        loadingFill.style.setProperty('height', '100%', 'important');
+        loadingFill.style.setProperty('background', '#3F6C91', 'important'); // Our brand blue color
+        loadingFill.style.setProperty('width', '0%', 'important');
+        loadingFill.style.setProperty('transition', 'width 0.2s ease', 'important');
+        loadingFill.style.setProperty('border-radius', '2px', 'important');
+        loadingFill.style.setProperty('display', 'block', 'important');
+        loadingFill.style.setProperty('visibility', 'visible', 'important');
+        loadingFill.style.setProperty('opacity', '1', 'important');
+        
         loadingBar.appendChild(loadingFill);
         sentencePlaceholder.appendChild(loadingBar);
         
-        // Animate loading bar
+        // Debug: Log the loading bar creation
+        console.log('Loading bar created:', loadingBar);
+        console.log('Loading bar parent:', sentencePlaceholder);
+        console.log('Loading bar visible:', loadingBar.offsetHeight > 0);
+        
+        // Force the loading bar to be visible after a short delay
+        setTimeout(() => {
+          loadingBar.style.setProperty('width', '100%', 'important');
+          loadingBar.style.setProperty('height', '4px', 'important'); // 30% thinner
+          loadingBar.style.setProperty('display', 'block', 'important');
+          loadingBar.style.setProperty('visibility', 'visible', 'important');
+          loadingBar.style.setProperty('opacity', '1', 'important');
+          loadingBar.style.setProperty('position', 'relative', 'important');
+          loadingBar.style.setProperty('left', '0', 'important');
+          loadingBar.style.setProperty('top', '0', 'important');
+          console.log('Loading bar styles forced:', loadingBar.style.cssText);
+        }, 50);
+        
+        // Inject CSS to override any conflicting styles
+        const style = document.createElement('style');
+        style.textContent = `
+          #sentence-loading-bar-${definitionIndex} {
+            width: 100% !important;
+            height: 4px !important;
+            background: #e0e0e0 !important;
+            margin: 8px 0 !important;
+            border-radius: 2px !important;
+            overflow: hidden !important;
+            border: 1px solid #3F6C91 !important;
+            display: block !important;
+            visibility: visible !important;
+            opacity: 1 !important;
+            z-index: 9999 !important;
+            position: relative !important;
+            left: 0 !important;
+            top: 0 !important;
+          }
+          #sentence-loading-bar-${definitionIndex} > div {
+            height: 100% !important;
+            background: #3F6C91 !important;
+            width: 0% !important;
+            transition: width 0.2s ease !important;
+            border-radius: 2px !important;
+            display: block !important;
+            visibility: visible !important;
+            opacity: 1 !important;
+          }
+        `;
+        document.head.appendChild(style);
+        
+        // Realistic loading animation that simulates AI processing
         let progress = 0;
         const loadingInterval = setInterval(() => {
-          progress += Math.random() * 15;
-          if (progress > 90) progress = 90;
-          loadingFill.style.width = progress + '%';
-        }, 100);
+          // Simulate realistic AI processing with variable progress
+          if (progress < 30) {
+            progress += Math.random() * 3 + 1; // Slow start
+          } else if (progress < 70) {
+            progress += Math.random() * 2 + 0.5; // Medium progress
+          } else if (progress < 90) {
+            progress += Math.random() * 1 + 0.2; // Slower near completion
+          } else {
+            progress += Math.random() * 0.5; // Very slow at the end
+          }
+          
+          if (progress > 95) progress = 95; // Don't complete until done
+          loadingFill.style.setProperty('width', progress + '%', 'important');
+        }, 50);
         
         // Store interval for cleanup
         window[`sentenceLoadingInterval_${definitionIndex}`] = loadingInterval;
+        
+        // Force minimum display time of 2000ms (2 seconds) for better visibility
+        setTimeout(() => {
+          if (loadingFill) {
+            loadingFill.style.setProperty('width', '100%', 'important');
+          }
+        }, 2000);
       }
       
-      const response = await fetch(`http://127.0.0.1:8787/sentence?word=${word}`);
+      // Force minimum loading time to ensure visibility
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      const response = await fetch(`http://127.0.0.1:8787/sentence?word=${word}&definitionIndex=${definitionIndex}`);
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
       const data = await response.json();
       
@@ -892,21 +1138,27 @@
         delete window[`sentenceLoadingInterval_${definitionIndex}`];
       }
       
-      if (data.sentences && data.sentences[definitionIndex]) {
-        const sentence = data.sentences[definitionIndex];
+      if (data.sentence) {
+        const sentence = data.sentence;
         
         if (sentencePlaceholder) {
           try {
             sentencePlaceholder.style.cssText = 'margin-left: 20px; margin-bottom: 12px; color: #ffffff; display: block;';
             
-            // Remove loading bar
+            // Remove loading elements
             const loadingBar = sentencePlaceholder.querySelector(`#sentence-loading-bar-${definitionIndex}`);
             if (loadingBar) loadingBar.remove();
             
+            // Remove loading message if it exists
+            const loadingMsg = sentencePlaceholder.querySelector(`#sentence-loading-msg-${definitionIndex}`);
+            if (loadingMsg) loadingMsg.remove();
+            
+
+            
             // Get the definition context for this specific sentence
-            const definitions = data.definitions || window.currentWordDefinitions || [];
-            if (definitions[definitionIndex]) {
-              const def = definitions[definitionIndex];
+            const definition = data.definition || window.currentWordDefinitions?.[definitionIndex];
+            if (definition) {
+              const def = definition;
               let defType = 'Word';
               
               if (typeof def === 'object' && def.partOfSpeech) {
@@ -918,14 +1170,34 @@
                 else if (def.includes('adverb')) defType = 'Adverb';
               }
               
-              sentencePlaceholder.innerHTML = `<div style="color: #1f6feb; font-weight: 600; margin-bottom: 4px;">Sentence Example:</div><strong style="color: #ffffff;">${defType}:</strong> ${sentence}`;
+              sentencePlaceholder.innerHTML = `<div style="color: #3F6C91; font-weight: 600; margin-bottom: 4px;">Sentence Example:</div><strong style="color: #ffffff;">${defType}:</strong> ${sentence}`;
             } else {
               sentencePlaceholder.textContent = sentence;
             }
           } catch (error) {
             console.error('Error updating sentence placeholder:', error);
+            // Clean up loading elements on error
+            const loadingBar = sentencePlaceholder.querySelector(`#sentence-loading-bar-${definitionIndex}`);
+            if (loadingBar) loadingBar.remove();
+            
+            const loadingMsg = sentencePlaceholder.querySelector(`#sentence-loading-msg-${definitionIndex}`);
+            if (loadingMsg) loadingMsg.remove();
+            
             sentencePlaceholder.textContent = sentence;
           }
+        }
+      } else {
+        // No sentence found for this definition index
+        if (sentencePlaceholder) {
+          // Clean up loading elements
+          const loadingBar = sentencePlaceholder.querySelector(`#sentence-loading-bar-${definitionIndex}`);
+          if (loadingBar) loadingBar.remove();
+          
+          const loadingMsg = sentencePlaceholder.querySelector(`#sentence-loading-msg-${definitionIndex}`);
+          if (loadingMsg) loadingMsg.remove();
+          
+          sentencePlaceholder.style.cssText = 'margin-left: 20px; margin-bottom: 12px; color: #f66; font-style: italic; display: block;';
+          sentencePlaceholder.textContent = 'No sentence found for this definition.';
         }
       }
     } catch (error) {
@@ -939,6 +1211,13 @@
       
       // Show error message
       if (sentencePlaceholder) {
+        // Remove any existing loading elements
+        const loadingBar = sentencePlaceholder.querySelector(`#sentence-loading-bar-${definitionIndex}`);
+        if (loadingBar) loadingBar.remove();
+        
+        const loadingMsg = sentencePlaceholder.querySelector(`#sentence-loading-msg-${definitionIndex}`);
+        if (loadingMsg) loadingMsg.remove();
+        
         sentencePlaceholder.style.cssText = 'margin-left: 20px; margin-bottom: 12px; color: #f66; font-style: italic; display: block;';
         sentencePlaceholder.textContent = 'Failed to load sentence.';
       }
@@ -947,7 +1226,7 @@
   
   // Function to show translate dropdown for a specific definition
   function showTranslateDropdownForDefinition(word, definitionIndex) {
-    console.log(`[DEBUG] showTranslateDropdownForDefinition called with word: ${word}, definition: ${definitionIndex}`);
+            // Showing translation dropdown for definition
     
     // Get the current definitions to provide context
     const definitions = window.currentWordDefinitions || [];
@@ -981,8 +1260,8 @@
     
     // Add hover effects to select
     select.addEventListener('mouseenter', () => {
-      select.style.borderColor = '#1f6feb';
-      select.style.boxShadow = '0 0 0 3px rgba(31, 111, 235, 0.1)';
+      select.style.borderColor = '#3F6C91';
+      select.style.boxShadow = '0 0 0 3px rgba(63, 108, 145, 0.1)';
     });
     
     select.addEventListener('mouseleave', () => {
@@ -1018,46 +1297,132 @@
           translationPlaceholder.style.cssText = 'margin-left: 20px; margin-bottom: 12px; color: #666; font-style: italic; display: block;';
           translationPlaceholder.textContent = `Translating to ${languages.find(l => l.code === langCode).name}...`;
           
-          // Add loading bar
+          // Add thin blue loading bar with forced visibility
           const loadingBar = document.createElement('div');
           loadingBar.id = `translation-loading-bar-${definitionIndex}`;
-          loadingBar.style.cssText = 'width: 100%; height: 2px; background: #333; margin-top: 4px; overflow: hidden;';
+          
+          // Set styles individually to avoid conflicts
+          loadingBar.style.setProperty('width', '100%', 'important');
+          loadingBar.style.setProperty('height', '4px', 'important'); // 30% thinner (4px height)
+          loadingBar.style.setProperty('background', '#e0e0e0', 'important');
+          loadingBar.style.setProperty('margin', '8px 0', 'important');
+          loadingBar.style.setProperty('border-radius', '2px', 'important');
+          loadingBar.style.setProperty('overflow', 'hidden', 'important');
+          loadingBar.style.setProperty('border', '1px solid #3F6C91', 'important'); // Thinner border
+          loadingBar.style.setProperty('display', 'block', 'important');
+          loadingBar.style.setProperty('visibility', 'visible', 'important');
+          loadingBar.style.setProperty('opacity', '1', 'important');
+          loadingBar.style.setProperty('z-index', '9999', 'important');
+          loadingBar.style.setProperty('position', 'relative', 'important');
+          loadingBar.style.setProperty('left', '0', 'important');
+          loadingBar.style.setProperty('top', '0', 'important');
+          
           const loadingFill = document.createElement('div');
-          loadingFill.style.cssText = 'height: 100%; background: #1f6feb; width: 0%; transition: width 0.3s ease;';
+          loadingFill.style.setProperty('height', '100%', 'important');
+          loadingFill.style.setProperty('background', '#3F6C91', 'important'); // Our brand blue color
+          loadingFill.style.setProperty('width', '0%', 'important');
+          loadingFill.style.setProperty('transition', 'width 0.2s ease', 'important');
+          loadingFill.style.setProperty('border-radius', '2px', 'important');
+          loadingFill.style.setProperty('display', 'block', 'important');
+          loadingFill.style.setProperty('visibility', 'visible', 'important');
+          loadingFill.style.setProperty('opacity', '1', 'important');
+          
           loadingBar.appendChild(loadingFill);
           translationPlaceholder.appendChild(loadingBar);
           
-          // Animate loading bar
+          // Debug: Log the loading bar creation
+          console.log('Translation loading bar created:', loadingBar);
+          console.log('Translation loading bar parent:', translationPlaceholder);
+          console.log('Translation loading bar visible:', loadingBar.offsetHeight > 0);
+          
+          // Force the loading bar to be visible after a short delay
+          setTimeout(() => {
+            loadingBar.style.setProperty('width', '100%', 'important');
+            loadingBar.style.setProperty('height', '4px', 'important'); // 30% thinner
+            loadingBar.style.setProperty('display', 'block', 'important');
+            loadingBar.style.setProperty('visibility', 'visible', 'important');
+            loadingBar.style.setProperty('opacity', '1', 'important');
+            loadingBar.style.setProperty('position', 'relative', 'important');
+            loadingBar.style.setProperty('left', '0', 'important');
+            loadingBar.style.setProperty('top', '0', 'important');
+            console.log('Translation loading bar styles forced:', loadingBar.style.cssText);
+          }, 50);
+          
+          // Inject CSS to override any conflicting styles
+          const style = document.createElement('style');
+          style.textContent = `
+            #translation-loading-bar-${definitionIndex} {
+              width: 100% !important;
+              height: 4px !important;
+              background: #e0e0e0 !important;
+              margin: 8px 0 !important;
+              border-radius: 2px !important;
+              overflow: hidden !important;
+              border: 1px solid #3F6C91 !important;
+              display: block !important;
+              visibility: visible !important;
+              opacity: 1 !important;
+              z-index: 9999 !important;
+              position: relative !important;
+              left: 0 !important;
+              top: 0 !important;
+            }
+            #translation-loading-bar-${definitionIndex} > div {
+              height: 100% !important;
+              background: #3F6C91 !important;
+              width: 0% !important;
+              transition: width 0.2s ease !important;
+              border-radius: 2px !important;
+              display: block !important;
+              visibility: visible !important;
+              opacity: 1 !important;
+            }
+          `;
+          document.head.appendChild(style);
+          
+          // Realistic loading animation that simulates AI processing
           let progress = 0;
           const loadingInterval = setInterval(() => {
-            progress += Math.random() * 15;
-            if (progress > 90) progress = 90;
-            loadingFill.style.width = progress + '%';
-          }, 100);
+            // Simulate realistic AI processing with variable progress
+            if (progress < 30) {
+              progress += Math.random() * 3 + 1; // Slow start
+            } else if (progress < 70) {
+              progress += Math.random() * 2 + 0.5; // Medium progress
+            } else if (progress < 90) {
+              progress += Math.random() * 1 + 0.2; // Slower near completion
+            } else {
+              progress += Math.random() * 0.5; // Very slow at the end
+            }
+            
+            if (progress > 95) progress = 95; // Don't complete until done
+            loadingFill.style.setProperty('width', progress + '%', 'important');
+          }, 50);
           
           // Store interval for cleanup
           window[`translationLoadingInterval_${definitionIndex}`] = loadingInterval;
+          
+          // Force minimum display time of 2000ms (2 seconds) for better visibility
+          setTimeout(() => {
+            if (loadingFill) {
+              loadingFill.style.setProperty('width', '100%', 'important');
+            }
+          }, 2000);
         }
         
         // Get current definitions to provide context for translation
         const definitionsParam = encodeURIComponent(JSON.stringify([targetDefinition]));
         
-        console.log(`[DEBUG] Making translation request to: http://127.0.0.1:8787/translate?word=${word}&lang=${langCode}&definitions=${definitionsParam}`);
-        
         const response = await fetch(`http://127.0.0.1:8787/translate?word=${word}&lang=${langCode}&definitions=${definitionsParam}`);
-        console.log(`[DEBUG] Translation response status:`, response.status);
         
         if (!response.ok) throw new Error(`HTTP ${response.status}`);
         
         const responseText = await response.text();
-        console.log(`[DEBUG] Translation response text:`, responseText);
         
         let data;
         try {
           data = JSON.parse(responseText);
-          console.log(`[DEBUG] Translation response parsed:`, data);
         } catch (parseError) {
-          console.error(`[DEBUG] Failed to parse translation response:`, parseError);
+          console.error(`Failed to parse translation response:`, parseError);
           throw new Error(`Invalid JSON response: ${responseText}`);
         }
         
@@ -1069,7 +1434,7 @@
         
         if (data.translations && data.translations[0]) {
           const trans = data.translations[0];
-          console.log(`[DEBUG] Translation data:`, trans);
+          // Translation data received
           
           const translationPlaceholder = document.getElementById(`translation-${definitionIndex}`);
           
@@ -1086,7 +1451,7 @@
               // Add translation subtitle - get language name from the selected language
               const selectedLanguage = languages.find(l => l.code === langCode);
               const languageName = selectedLanguage ? selectedLanguage.name : 'Unknown';
-              content += `<div style="color: #1f6feb; font-weight: 600; margin-bottom: 4px;">Translation to ${languageName}:</div>`;
+              content += `<div style="color: #3F6C91; font-weight: 600; margin-bottom: 4px;">Translation to ${languageName}:</div>`;
               
               // Show part of speech and definition context
               if (trans.partOfSpeech) {
@@ -1106,14 +1471,10 @@
                 content += `<br><span style="opacity: 0.9;">${trans.definitionInTargetLang}</span>`;
               }
               
-              // Show source (AI vs API)
-              const sourceText = trans.source === 'ai' ? 'AI (Ollama)' : trans.source === 'api' ? 'API' : 'Fallback';
-              content += `<br><small style="opacity: 0.6;">Source: ${sourceText}</small>`;
-              
-              console.log(`[DEBUG] Setting translation content:`, content);
+              // Setting translation content
               translationPlaceholder.innerHTML = content;
             } catch (error) {
-              console.error(`[DEBUG] Error updating translation placeholder:`, error);
+              console.error(`Error updating translation placeholder:`, error);
               translationPlaceholder.textContent = `Translation: ${trans.translation}`;
             }
           }
@@ -1202,7 +1563,7 @@
   }
 
   async function refresh(list, history, historyTitle) {
-    console.log('[DEBUG] refresh() function called');
+            // Refresh function called
     try {
       // Auto-sync current board to the bridge before fetching suggestions
       await postState();
@@ -1237,7 +1598,7 @@
                           // Info button that shows definitions
               const infoBtn = h('button', {
                 style: { 
-                  background: '#1f6feb', 
+                  background: '#3F6C91', 
                   color: '#fff', 
                   border: 'none', 
                   borderRadius: '6px', 
@@ -1251,14 +1612,14 @@
                   transition: 'all 0.2s ease'
                 },
                 onclick: () => {
-                  console.log('[DEBUG] Past guesses button clicked for word:', g);
+                  // Past guesses button clicked
                   showDefinition(g);
                 },
                 onmouseenter: (e) => {
                   e.target.style.background = '#58a6ff';
                 },
                 onmouseleave: (e) => {
-                  e.target.style.background = '#1f6feb';
+                  e.target.style.background = '#3F6C91';
                 }
               });
             
@@ -1333,7 +1694,7 @@
             h('div', { style: { marginLeft: 'auto', display: 'flex', gap: '6px' } },
               h('button', { 
                 style: { 
-                  background: '#1f6feb', 
+                  background: '#3F6C91', 
                   color: '#fff', 
                   border: 'none', 
                   borderRadius: '6px', 
@@ -1347,14 +1708,14 @@
                   transition: 'all 0.2s ease'
                 }, 
                 onclick: () => {
-                  console.log('[DEBUG] Button clicked for word:', word);
+                  // Button clicked for word
                   showDefinition(word);
                 },
                 onmouseenter: (e) => {
                   e.target.style.background = '#58a6ff';
                 },
                 onmouseleave: (e) => {
-                  e.target.style.background = '#1f6feb';
+                  e.target.style.background = '#3F6C91';
                 }
               })
             )
@@ -1389,7 +1750,7 @@
   const wordContentStates = new Map();
   
   function showDefinition(word) {
-    console.log('[DEBUG] showDefinition called with word:', word);
+            // Showing definition for word
     
     const defWrap = document.getElementById('wordle-def-wrap');
     if (!defWrap) {
@@ -1397,17 +1758,17 @@
       return;
     }
     
-    console.log('[DEBUG] Found defWrap, setting display to block');
+            // Definition wrapper found, displaying
     defWrap.style.display = 'block';
     
-    console.log('[DEBUG] Calling fetchDefinition for word:', word);
+            // Calling fetchDefinition
     fetchDefinition(word);
   }
 
   function install() {
-    console.log('[DEBUG] install() function called');
+            // Install function called
     const { list, history, historyTitle } = createPanel();
-    console.log('[DEBUG] Panel created, calling refresh...');
+            // Panel created, calling refresh
     refresh(list, history, historyTitle);
 
     // Debounced auto refresh helpers
@@ -1431,7 +1792,7 @@
   const ready = setInterval(() => {
     if (document.readyState === 'complete' || document.readyState === 'interactive') {
       clearInterval(ready); 
-      console.log('[DEBUG] Document ready, installing Wordle helper...');
+              // Document ready, installing Wordle helper
       install();
     }
   }, 500);
