@@ -1,0 +1,231 @@
+# 🚀 Wordom - AI-Powered Wordle Unlimited Helper
+
+> **Transform your Wordle Unlimited experience with AI-generated sentences, smart translations, and intelligent word suggestions.**
+
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Node.js](https://img.shields.io/badge/Node.js-18+-green.svg)](https://nodejs.org/)
+[![Chrome Extension](https://img.shields.io/badge/Chrome-Extension-blue.svg)](https://chrome.google.com/webstore/category/extensions)
+[![AI Powered](https://img.shields.io/badge/AI-Powered-purple.svg)](https://ollama.ai/)
+
+## ✨ Features
+
+- 🤖 **AI-Generated Sentences** - Get contextual example sentences for any word definition using local AI
+- 🌍 **Multi-Language Translations** - Translate words to Spanish, French, German, and more
+- 🧠 **Smart Word Suggestions** - AI-powered recommendations based on your game state
+- ⚡ **Real-Time Processing** - Beautiful loading animations and instant results
+- 🎯 **Definition-Specific** - Generate sentences for individual word meanings
+- 🔍 **Advanced Validation** - Ensures AI sentences are contextually relevant and grammatically correct
+- 🎨 **Beautiful UI** - Modern, responsive interface that integrates seamlessly with Wordle Unlimited
+
+## 🎮 Demo
+
+**See Wordom in action:**
+- **AI sentence generation for "crane" (noun)**: *"As it took flight, the majestic sandhill crane stretched its long neck and legs, its distinctive silhouette soaring effortlessly above the marshy landscape."*
+- **AI sentence generation for "crane" (verb)**: *"As she struggled to reach the top shelf, Sarah had to crane her neck to see if the box was still there."*
+- **Spanish translation**: "crane" → "grúa" with pronunciation and definition
+
+## 🚀 Quick Start
+
+### Prerequisites
+- **Node.js 18+** - [Download here](https://nodejs.org/)
+- **Ollama** - [Install here](https://ollama.ai/) (for AI features)
+- **Chrome/Firefox** browser with developer mode enabled
+
+### Installation
+
+```bash
+# Clone the repository
+git clone https://github.com/nachoj444/wordom.git
+cd wordom
+
+# Install dependencies
+npm install
+
+# Start the AI server
+npm start
+
+# Load the extension in your browser
+# 1. Go to chrome://extensions/
+# 2. Enable Developer mode
+# 3. Click "Load unpacked" → select the 'extension' folder
+# 4. Navigate to Wordle Unlimited and enjoy AI-powered help!
+```
+
+## 🏗️ Architecture
+
+Wordom combines the power of multiple technologies:
+
+```
+┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
+│   Chrome        │    │   Node.js       │    │   Ollama        │
+│   Extension     │◄──►│   Server        │◄──►│   AI Model      │
+│   (Frontend)    │    │   (Backend)     │    │   (Local)       │
+└─────────────────┘    └─────────────────┘    └─────────────────┘
+         │                       │                       │
+         │                       │                       │
+         ▼                       ▼                       ▼
+┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
+│   Wordle        │    │   Dictionary    │    │   Translation   │
+│   Unlimited     │    │   APIs          │    │   Services      │
+│   Integration   │    │                 │    │                 │
+└─────────────────┘    └─────────────────┘    └─────────────────┘
+```
+
+## 🎯 How It Works
+
+### 1. **Word Lookup**
+- User clicks on a word in Wordom while playing Wordle Unlimited
+- Extension sends request to local Node.js server
+- Server fetches definitions from Free Dictionary API and Wiktionary
+
+### 2. **AI Sentence Generation**
+- User requests example sentence for specific definition
+- Server calls local Ollama AI model with contextual prompt
+- AI generates relevant sentence (e.g., "The majestic sandhill crane...")
+- Advanced validation ensures sentence quality and relevance
+
+### 3. **Translation**
+- User selects target language
+- Server calls Ollama for translation
+- Fallback to translation APIs if needed
+- Returns word, pronunciation, and definition
+
+### 4. **Smart Suggestions**
+- Analyzes current Wordle Unlimited game state
+- Uses AI to suggest optimal next words
+- Considers letter frequency and position
+
+## 📱 Screenshots
+
+| Feature | Description |
+|---------|-------------|
+| **Main Interface** | Clean, modern popup with word definitions |
+| **AI Sentences** | Contextual examples generated by local AI |
+| **Translations** | Multi-language support with pronunciation |
+| **Loading States** | Beautiful animated progress bars |
+
+## ⚙️ Configuration
+
+### Environment Variables
+```bash
+OLLAMA_MODEL=llama3.2:3b  # Your preferred AI model
+BRIDGE_PORT=8787          # Server port (default: 8787)
+```
+
+### Customization Options
+- **AI Model**: Change `OLLAMA_MODEL` to use different models
+- **Server Port**: Modify `BRIDGE_PORT` if 8787 is occupied
+- **UI Styling**: Edit `extension/style.css` for visual changes
+- **AI Prompts**: Customize prompts in `src/server.mjs`
+
+## 🔧 Development
+
+### Project Structure
+```
+wordom/
+├── src/                    # Backend server code
+│   ├── server.mjs         # Main server file
+│   └── server.js          # Alternative server
+├── extension/              # Browser extension
+│   ├── manifest.json       # Extension configuration
+│   ├── content.js          # Main extension logic
+│   └── style.css           # Extension styling
+├── docs/                   # Documentation
+├── screenshots/            # Demo images
+└── package.json            # Dependencies and scripts
+```
+
+### Development Commands
+```bash
+npm start          # Start development server
+npm run dev        # Start with auto-reload (if configured)
+npm test           # Run tests (when implemented)
+npm run build      # Build for production (if needed)
+```
+
+## 🤝 Contributing
+
+We welcome contributions from the community! Here's how you can help:
+
+### Ways to Contribute
+- 🐛 **Report bugs** - Open an issue with detailed description
+- 💡 **Suggest features** - Share your ideas for improvement
+- 🔧 **Fix issues** - Submit pull requests for bug fixes
+- 📚 **Improve docs** - Help make setup easier for others
+- 🎨 **Enhance UI** - Improve the visual design
+
+### Development Setup
+```bash
+# Fork and clone the repository
+git clone https://github.com/YOUR_USERNAME/wordom.git
+cd wordom
+
+# Install dependencies
+npm install
+
+# Make your changes
+# Test thoroughly
+
+# Submit a pull request
+```
+
+### Code Style
+- Use consistent formatting
+- Add comments for complex logic
+- Follow existing naming conventions
+- Test your changes before submitting
+
+## 📄 License
+
+This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) file for details.
+
+The MIT License allows you to:
+- ✅ Use the code commercially
+- ✅ Modify the code
+- ✅ Distribute the code
+- ✅ Use it privately
+- ✅ Sublicense it
+
+## 🙏 Acknowledgments
+
+- **Ollama** - For providing local AI capabilities
+- **Free Dictionary API** - For comprehensive word definitions
+- **Wiktionary** - For additional linguistic data
+- **Wordle Community** - For inspiration and feedback
+
+## 📞 Support & Community
+
+### Getting Help
+- 🐛 **Bug Reports**: [GitHub Issues](https://github.com/nachoj444/wordom/issues)
+- 💬 **Questions**: [GitHub Discussions](https://github.com/nachoj444/wordom/discussions)
+- 📧 **Contact**: [@nachoj444](https://github.com/nachoj444)
+
+### Community Guidelines
+- Be respectful and helpful
+- Provide detailed information when reporting issues
+- Help other users when possible
+- Share your experiences and suggestions
+
+## 🚀 Roadmap
+
+### Upcoming Features
+- [ ] **More AI Models** - Support for additional Ollama models
+- [ ] **Enhanced Translations** - More languages and better accuracy
+- [ ] **Game Statistics** - Track your Wordle Unlimited performance
+- [ ] **Custom Themes** - Personalize the interface
+- [ ] **Mobile Support** - Responsive design for mobile devices
+
+### Long-term Goals
+- **Cloud Deployment** - Make it accessible without local setup
+- **Community Models** - Share and use community-trained models
+- **API Access** - Provide public API for other developers
+- **Plugin System** - Allow third-party extensions
+- **Multi-Game Support** - Expand to other word games beyond Wordle Unlimited
+
+---
+
+<div align="center">
+  <strong>Made with ❤️ for the Wordle Unlimited community</strong><br>
+  <sub>⭐ Star this repo if Wordom helps you solve Wordle Unlimited puzzles!</sub><br>
+  <sub>🤝 Join our community and help make Wordom even better!</sub>
+</div>

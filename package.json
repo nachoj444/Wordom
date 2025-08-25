@@ -1,18 +1,58 @@
 {
-  "name": "wordlemcp",
+  "name": "wordom",
   "version": "1.0.0",
-  "description": "",
+  "description": "AI-Powered Wordle Unlimited Helper with local AI sentence generation, translations, and smart word suggestions",
   "main": "src/server.mjs",
+  "type": "module",
   "scripts": {
     "start": "node src/server.mjs",
-    "test": "echo \"No tests yet\" && exit 0"
+    "dev": "node --watch src/server.mjs",
+    "build": "echo 'No build step required for this project'",
+    "test": "echo 'No tests yet - coming soon!' && exit 0",
+    "lint": "echo 'Linting setup coming soon!' && exit 0",
+    "format": "echo 'Code formatting setup coming soon!' && exit 0",
+    "docs": "echo 'Documentation generation coming soon!' && exit 0"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "type": "commonjs",
+  "keywords": [
+    "wordle-unlimited",
+    "wordleunlimited",
+    "ai",
+    "ollama",
+    "chrome-extension",
+    "browser-extension",
+    "nlp",
+    "language-learning",
+    "dictionary",
+    "translation",
+    "sentence-generation"
+  ],
+  "author": "nachoj444",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/nachoj444/wordom.git"
+  },
+  "homepage": "https://github.com/nachoj444/wordom#readme",
+  "bugs": {
+    "url": "https://github.com/nachoj444/wordom/issues"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.17.2",
     "zod": "^3.25.76"
-  }
+  },
+  "devDependencies": {},
+  "peerDependencies": {},
+  "optionalDependencies": {},
+  "os": [
+    "darwin",
+    "linux",
+    "win32"
+  ],
+  "cpu": [
+    "x64",
+    "arm64"
+  ]
 }

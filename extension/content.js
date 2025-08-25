@@ -428,7 +428,7 @@
   }
   async function fetchDefinition(word) {
     try {
-      const response = await fetch(`http://127.0.0.1:8787/define?word=${word}`);
+            const response = await fetch(`http://127.0.0.1:8787/define?word=${word}`);
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
       const data = await response.json();
       
