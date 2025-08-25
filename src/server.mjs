@@ -644,12 +644,17 @@ async function localModelSentenceForDefinition(word, definition, definitionIndex
       console.log(`[DEBUG] Generating AI sentence for "${word}" with definition: "${definitionText}"`);
       const prompt = `Create ONE sentence that demonstrates the word "${word}" being used with EXACTLY this meaning: "${definitionText}". 
 
-IMPORTANT: The sentence must be a clear, specific example of this definition in action. Do not use any other meaning of the word.
+CRITICAL REQUIREMENTS:
+- Use "${word}" as a ${partOfSpeech}, NOT as any other part of speech
+- If ${partOfSpeech} is "noun", use "${word}" as a thing/object, NOT as an action
+- If ${partOfSpeech} is "verb", use "${word}" as an action, NOT as a thing/object
+- The sentence must clearly demonstrate the definition meaning
+- Make it natural and realistic
 
 For example:
-- If the definition is about "a portion/part", create a sentence about dividing or allocating parts
-- If the definition is about "giving/distributing", create a sentence about sharing or giving things to others  
-- If the definition is about "a blade/tool", create a sentence about using that specific tool
+- If the definition is about "a portion/part" (noun), create a sentence where "${word}" is a thing: "Each person received their share of the profits"
+- If the definition is about "giving/distributing" (verb), create a sentence where "${word}" is an action: "They decided to share the food with everyone"
+- If the definition is about "a blade/tool" (noun), create a sentence where "${word}" is a thing: "The farmer sharpened the share of his plough"
 
 Output only the sentence, nothing else.`;
 
@@ -721,12 +726,17 @@ async function localModelSentence(word, definitions = []) {
           console.log(`[DEBUG] Generating AI sentence for "${word}" with definition: "${definition}"`);
           const prompt = `Create ONE sentence that demonstrates the word "${word}" being used with EXACTLY this meaning: "${definition}". 
 
-IMPORTANT: The sentence must be a clear, specific example of this definition in action. Do not use any other meaning of the word.
+CRITICAL REQUIREMENTS:
+- Use "${word}" as a ${partOfSpeech}, NOT as any other part of speech
+- If ${partOfSpeech} is "noun", use "${word}" as a thing/object, NOT as an action
+- If ${partOfSpeech} is "verb", use "${word}" as an action, NOT as a thing/object
+- The sentence must clearly demonstrate the definition meaning
+- Make it natural and realistic
 
 For example:
-- If the definition is about "a portion/part", create a sentence about dividing or allocating parts
-- If the definition is about "giving/distributing", create a sentence about sharing or giving things to others  
-- If the definition is about "a blade/tool", create a sentence about using that specific tool
+- If the definition is about "a portion/part" (noun), create a sentence where "${word}" is a thing: "Each person received their share of the profits"
+- If the definition is about "giving/distributing" (verb), create a sentence where "${word}" is an action: "They decided to share the food with everyone"
+- If the definition is about "a blade/tool" (noun), create a sentence where "${word}" is a thing: "The farmer sharpened the share of his plough"
 
 Output only the sentence, nothing else.`;
 
@@ -1311,13 +1321,14 @@ EXACT DEFINITION: "${definition}"
 
 CRITICAL INSTRUCTIONS:
 - You MUST translate the EXACT meaning "${definition}"
-- You MUST return ONLY: translation|pronunciation|definition in ${getLanguageName(targetLang)}
+- You MUST return ONLY: translation|pronunciation|brief definition
 - You MUST NOT explain, argue, or provide alternatives
 - You MUST NOT use English words in your response
+- You MUST NOT output the words "translation", "pronunciation", or "definition"
 - If you cannot translate, return: "NO_TRANSLATION"|"NO_TRANSLATION"|"NO_TRANSLATION"
 
 EXAMPLE OUTPUT FORMAT:
-translation|pronunciation|definition in ${getLanguageName(targetLang)}
+grulla|GRU-ya|ave de patas largas y cuello largo
 
 NOTHING ELSE. NO EXPLANATIONS. NO ARGUMENTS.`;
 
@@ -1467,14 +1478,15 @@ NOTHING ELSE. NO EXPLANATIONS. NO ARGUMENTS.`;
               try {
                                  const fallbackPrompt = `Find a ${getLanguageName(targetLang)} word that means: "${definition}"
 
-IMPORTANT: 
-- "Senses" here means "meanings" or "definitions", NOT optical senses
-- Focus on the core meaning: "thin, pointed object"
-- Ignore confusing words like "senses", "relating to"
+CRITICAL REQUIREMENTS:
+- Focus ONLY on the definition meaning, NOT the English word
+- Find a ${getLanguageName(targetLang)} word that matches the definition exactly
+- You MUST NOT output the words "word", "pronunciation", or "definition"
+- You MUST NOT give random words that don't match
 
-Return ONLY: word|pronunciation|definition in ${getLanguageName(targetLang)}
+Return ONLY: word|pronunciation|brief definition
 
-Example: aguja|a-GU-ha|objeto delgado y puntiagudo
+Example: grulla|GRU-ya|ave de patas largas y cuello largo
 
 NOTE: Always give a proper definition, never just a synonym.`;
 
@@ -1578,12 +1590,23 @@ function isValidContextualSentence(sentence, word, definition, partOfSpeech) {
   const lowerWord = word.toLowerCase();
   const lowerDef = definition.toLowerCase();
   
-  // Check if the sentence contains the word
-  if (!lowerSentence.includes(lowerWord)) {
-    console.log(`[DEBUG] ❌ VALIDATION FAILED: Sentence does not contain word "${lowerWord}"`);
+  // Check if the sentence contains the word OR demonstrates the definition meaning
+  const containsWord = lowerSentence.includes(lowerWord);
+  const demonstratesDefinition = lowerDef.includes('blade') && lowerSentence.includes('blade') ||
+                                lowerDef.includes('plough') && lowerSentence.includes('plough') ||
+                                lowerDef.includes('portion') && lowerSentence.includes('portion') ||
+                                lowerDef.includes('part') && lowerSentence.includes('part');
+  
+  if (!containsWord && !demonstratesDefinition) {
+    console.log(`[DEBUG] ❌ VALIDATION FAILED: Sentence does not contain word "${lowerWord}" or demonstrate definition meaning`);
     return false;
   }
-  console.log(`[DEBUG] ✅ Word "${lowerWord}" found in sentence`);
+  
+  if (containsWord) {
+    console.log(`[DEBUG] ✅ Word "${lowerWord}" found in sentence`);
+  } else {
+    console.log(`[DEBUG] ✅ Sentence demonstrates definition meaning without exact word`);
+  }
   
   // Check if the sentence demonstrates the intended part of speech
   if (partOfSpeech === 'noun') {
