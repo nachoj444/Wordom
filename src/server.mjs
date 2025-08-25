@@ -1320,12 +1320,12 @@ PART OF SPEECH: ${partOfSpeech}
 EXACT DEFINITION: "${definition}"
 
 CRITICAL INSTRUCTIONS:
-- You MUST translate the EXACT meaning "${definition}"
+- IGNORE the English word "${word}" completely
+- Focus ONLY on the definition meaning: "${definition}"
 - You MUST return ONLY: translation|pronunciation|brief definition
 - You MUST NOT explain, argue, or provide alternatives
 - You MUST NOT use English words in your response
 - You MUST NOT output the words "translation", "pronunciation", or "definition"
-- If you cannot translate, return: "NO_TRANSLATION"|"NO_TRANSLATION"|"NO_TRANSLATION"
 
 EXAMPLE OUTPUT FORMAT:
 grulla|GRU-ya|ave de patas largas y cuello largo
@@ -1479,7 +1479,8 @@ NOTHING ELSE. NO EXPLANATIONS. NO ARGUMENTS.`;
                                  const fallbackPrompt = `Find a ${getLanguageName(targetLang)} word that means: "${definition}"
 
 CRITICAL REQUIREMENTS:
-- Focus ONLY on the definition meaning, NOT the English word
+- IGNORE the English word completely
+- Focus ONLY on the definition meaning: "${definition}"
 - Find a ${getLanguageName(targetLang)} word that matches the definition exactly
 - You MUST NOT output the words "word", "pronunciation", or "definition"
 - You MUST NOT give random words that don't match
