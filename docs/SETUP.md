@@ -51,7 +51,23 @@ ollama pull llama3.2:3b
 # ollama pull codellama:7b    # Good for technical content
 ```
 
-### Step 4: Start the Server
+### Step 4: Start Ollama Server
+
+**IMPORTANT**: Ollama must be running for AI features to work!
+
+```bash
+# Start the Ollama server (this enables AI translation and sentence generation)
+ollama serve
+```
+
+You should see output like:
+```
+time=2025-09-01T12:26:35.758-07:00 level=INFO source=server.go:632 msg="waiting for server to become available"
+```
+
+**Keep this terminal window open!** Ollama needs to keep running.
+
+### Step 5: Start the Wordom Server
 
 ```bash
 # Start the Wordom server
@@ -65,7 +81,7 @@ You should see output like:
 
 **Keep this terminal window open!** The server needs to keep running.
 
-### Step 5: Load the Browser Extension
+### Step 6: Load the Browser Extension
 
 #### For Chrome:
 1. Open Chrome and go to `chrome://extensions/`
@@ -81,7 +97,7 @@ You should see output like:
 4. Select any file from the `extension` folder
 5. The extension should now appear in your add-ons
 
-### Step 6: Test the Extension
+### Step 7: Test the Extension
 
 1. Navigate to [Wordle Unlimited](https://wordleunlimited.org/)
 2. Look for the **Wordom icon** in your browser toolbar
@@ -139,7 +155,7 @@ npm start
 - Check the browser console for errors
 - Verify the extension folder path is correct
 
-#### 3. **AI Sentences Not Working**
+#### 3. **AI Sentences/Translation Not Working**
 ```bash
 # Check if Ollama is running
 ollama list
@@ -147,9 +163,13 @@ ollama list
 # Test Ollama directly
 ollama run llama3.2:3b "Hello, how are you?"
 
-# Restart Ollama service
+# If Ollama is not running, start it:
 ollama serve
+
+# Keep Ollama running in a separate terminal window!
 ```
+
+**Common Error**: If you see "fetch failed" or "Translation failed - no data received", it means Ollama server is not running. Start it with `ollama serve` and keep it running.
 
 #### 4. **Connection Errors**
 - Ensure the server is running (`npm start`)
