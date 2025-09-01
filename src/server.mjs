@@ -779,204 +779,37 @@ Output only the sentence, nothing else.`;
           console.log(`[DEBUG] AI failed for meaning ${i}, using fallback:`, error.message);
         }
         
-        // Fallback sentence if AI fails - create a contextually relevant one
-        const fallback = createContextualFallback(word, partOfSpeech, definition);
-        console.log(`[DEBUG] Using fallback sentence for definition ${i + 1}:`, fallback);
-        sentences.push(fallback);
+        // No fallback sentence available if AI fails
+        console.log(`[DEBUG] No fallback sentence available for definition ${i + 1}`);
+        // Skip this definition - don't add anything to sentences array
       }
       
-      // If we don't have enough sentences, fill with generic fallbacks
-      while (sentences.length < 3) {
-        sentences.push(generateFallbackSentences(word)[sentences.length] || 
-                     `The word "${word}" can be used in various contexts.`);
-      }
+      // No generic fallbacks - return whatever sentences we have (could be empty)
+      // The calling function will handle empty arrays appropriately
       
       console.log(`[DEBUG] Returning ${sentences.length} sentences from localModelSentence`);
       return sentences.slice(0, 3);
     } else {
-      // No AI model or no definitions, use fallback sentences
-      console.log(`[DEBUG] No AI model (${model}) or no definitions (${definitions.length}), using fallback`);
-      return generateFallbackSentences(word);
+      // No AI model or no definitions, no fallback sentences available
+      console.log(`[DEBUG] No AI model (${model}) or no definitions (${definitions.length}), no fallback available`);
+      return [];
     }
   } catch (error) {
     console.error('Error in localModelSentence:', error);
-    return generateFallbackSentences(word);
+    return [];
   }
 }
 
 function createContextualFallback(word, partOfSpeech, definition) {
-  // Create contextually relevant fallback sentences based on the specific definition
-  const lowerWord = word.toLowerCase();
-  const lowerDef = definition.toLowerCase();
-  
-  if (partOfSpeech === 'noun') {
-    if (lowerDef.includes('portion') || lowerDef.includes('part') || lowerDef.includes('allotted')) {
-      return `Each team member received an equal ${word} of the project budget.`;
-    } else if (lowerDef.includes('stock') || lowerDef.includes('company') || lowerDef.includes('investment')) {
-      return `She purchased 100 ${word}s of Apple stock last month.`;
-    } else if (lowerDef.includes('blade') || lowerDef.includes('plough') || lowerDef.includes('agricultural') || lowerDef.includes('cultivator')) {
-      return `The farmer sharpened the ${word} of his plough before planting season.`;
-    } else if (lowerDef.includes('responsibility') || lowerDef.includes('duty')) {
-      return `The ${word} of blame was distributed fairly among all participants.`;
-    } else if (lowerDef.includes('file') || lowerDef.includes('computer') || lowerDef.includes('network')) {
-      return `The network administrator created a new file ${word} for the team.`;
-      } else {
-    // Create more sensible generic sentences based on the word
-    if (lowerDef.includes('injury') || lowerDef.includes('hurt') || lowerDef.includes('damage') || lowerDef.includes('cut') || lowerDef.includes('stab') || lowerDef.includes('tear')) {
-      return `The doctor treated the ${word} with care and attention.`;
-    } else if (lowerDef.includes('sound') || lowerDef.includes('noise') || lowerDef.includes('voice')) {
-      return `The ${word} echoed through the empty hallway.`;
-    } else if (lowerDef.includes('light') || lowerDef.includes('bright') || lowerDef.includes('glow')) {
-      return `The ${word} illuminated the dark room.`;
-    } else if (lowerDef.includes('water') || lowerDef.includes('liquid') || lowerDef.includes('flow')) {
-      return `The ${word} flowed gently down the stream.`;
-    } else if (lowerDef.includes('work') || lowerDef.includes('task') || lowerDef.includes('job')) {
-      return `The ${word} was completed successfully by the team.`;
-    } else {
-      return `The ${word} was clearly visible in the morning light.`;
-    }
-  }
-  } else if (partOfSpeech === 'verb') {
-    if (lowerDef.includes('give') || lowerDef.includes('divide') || lowerDef.includes('distribute')) {
-      return `They agreed to ${word} the remaining food with the hungry travelers.`;
-    } else if (lowerDef.includes('experience') || lowerDef.includes('feel') || lowerDef.includes('have in common')) {
-      return `We all ${word} the same concerns about the upcoming changes.`;
-    } else if (lowerDef.includes('tell') || lowerDef.includes('communicate') || lowerDef.includes('story')) {
-      return `He wanted to ${word} his personal experience with the group.`;
-    } else if (lowerDef.includes('use together') || lowerDef.includes('occupy') || lowerDef.includes('shelter')) {
-      return `The two families ${word} the same vacation home every summer.`;
-    } else if (lowerDef.includes('language') || lowerDef.includes('speak')) {
-      return `The students ${word} a common language in their international class.`;
-    } else {
-      return `Let's ${word} our resources to complete this project faster.`;
-    }
-  } else if (partOfSpeech === 'adjective') {
-    return `The ${word} price has increased by 15% this quarter.`;
-  } else {
-    return `It's important to ${word} knowledge and information with others.`;
-  }
+  // Return null to indicate no fallback sentence available
+  // This will trigger the error message in the calling function
+  return null;
 }
 
 function generateFallbackSentences(word) {
-  // Much better fallback templates that are actually useful
-  if (word === 'crony') {
-    return [
-      'The politician appointed his cronies to key positions.',
-      'She only hired her cronies from the old company.',
-      'The CEO surrounded himself with cronies who never disagreed.'
-    ];
-  }
-  
-  if (word === 'siren') {
-    return [
-      'The fire truck\'s siren blared as it rushed to the emergency.',
-      'Ancient sailors were lured by the siren\'s enchanting song.',
-      'The tornado siren warned residents to seek shelter immediately.'
-    ];
-  }
-  
-  if (word === 'slate') {
-    return [
-      'The teacher wrote the lesson on the slate blackboard.',
-      'The roof was covered with dark slate tiles.',
-      'We need to start with a clean slate for this project.'
-    ];
-  }
-  
-  if (word === 'sheer') {
-    return [
-      'The sheer size of the mountain was overwhelming.',
-      'She wore a sheer blouse over her tank top.',
-      'It was sheer luck that we found the missing keys.'
-    ];
-  }
-  
-  if (word === 'screw') {
-    return [
-      'I need to tighten that loose screw in the chair.',
-      'Don\'t screw up this important presentation.',
-      'The mechanic used a screwdriver to fix the engine.'
-    ];
-  }
-  
-  if (word === 'corny') {
-    return [
-      'The movie was full of corny jokes and clichés.',
-      'His pickup lines were so corny they made her laugh.',
-      'The sitcom had that corny laugh track we all remember.'
-    ];
-  }
-  
-  if (word === 'irony') {
-    return [
-      'The irony of the situation wasn\'t lost on anyone.',
-      'It\'s ironic that the fire station burned down.',
-      'The irony of his words contradicted his actions.'
-    ];
-  }
-  
-  if (word === 'briny') {
-    return [
-      'The briny ocean air filled our lungs.',
-      'The soup had a briny taste from the seafood.',
-      'We could smell the briny salt marshes from the road.'
-    ];
-  }
-  
-  if (word === 'horny') {
-    return [
-      'The horny toad is actually a type of lizard.',
-      'The old car had horny headlights that needed polishing.',
-      'The horny texture of the bark made it easy to climb.'
-    ];
-  }
-  
-  if (word === 'bunny') {
-    return [
-      'The bunny hopped across the garden path.',
-      'She bought her daughter a stuffed bunny for Easter.',
-      'The bunny rabbit nibbled on the fresh carrots.'
-    ];
-  }
-  
-  if (word === 'goody') {
-    return [
-      'The goody bag was filled with treats and toys.',
-      'She\'s such a goody-goody, always following the rules.',
-      'The party favors included goody bags for all the kids.'
-    ];
-  }
-  
-  if (word === 'moody') {
-    return [
-      'He\'s been moody ever since he lost his job.',
-      'The moody teenager slammed the door and stormed off.',
-      'Her moody paintings reflected her inner turmoil.'
-    ];
-  }
-  
-  if (word === 'woody') {
-    return [
-      'The woody aroma of cedar filled the room.',
-      'The forest had a rich, woody scent after the rain.',
-      'The wine had subtle woody notes from oak aging.'
-    ];
-  }
-  
-  if (word === 'roomy') {
-    return [
-      'The new apartment is much roomier than the old one.',
-      'The SUV has a roomy interior perfect for family trips.',
-      'The roomy kitchen has plenty of counter space.'
-    ];
-  }
-  
-  // Generic but better templates for other words
-  return [
-    `The word "${word}" has an interesting origin.`,
-    `Many people find "${word}" difficult to spell.`,
-    `"${word}" is commonly used in everyday conversation.`
-  ];
+  // Return empty array to indicate no fallback sentences available
+  // This will trigger the error message in the calling function
+  return [];
 }
 
 async function lookupExampleSentenceForDefinition(word, definition, definitionIndex) {
@@ -1024,9 +857,9 @@ async function lookupExampleSentenceForDefinition(word, definition, definitionIn
     console.log(`[DEBUG] Wiktionary failed for definition ${definitionIndex}:`, e.message);
   }
   
-  // Last resort: generic fallback sentence for this definition
-  console.log(`[DEBUG] Using generic fallback sentence for definition ${definitionIndex}`);
-  return createContextualFallback(word, definition.partOfSpeech, definition.definition);
+  // Last resort: no fallback sentence available
+  console.log(`[DEBUG] No fallback sentence available for definition ${definitionIndex}`);
+  return null;
 }
 
 async function lookupExampleSentences(word, definitions = []) {
@@ -1074,9 +907,9 @@ async function lookupExampleSentences(word, definitions = []) {
     console.log(`[DEBUG] Wiktionary failed:`, e.message);
   }
   
-  // Last resort: generic fallback sentences
-  console.log(`[DEBUG] Using generic fallback sentences for "${word}"`);
-  return generateFallbackSentences(word);
+  // Last resort: no fallback sentences available
+  console.log(`[DEBUG] No fallback sentences available for "${word}"`);
+  return [];
 }
 
 function collectFreeDictionarySentenceForDefinition(data, definitionIndex) {
