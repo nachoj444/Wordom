@@ -20,9 +20,6 @@
       "matches": ["<all_urls>"]
     }
   ],
-  "permissions": [
-    "activeTab"
-  ],
   "content_scripts": [
     {
       "matches": [
